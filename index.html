@@ -1,41 +1,38 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Бердібек Егеубай — Full-stack & Game Developer</title>
-  <meta name="description" content="Интерактивное 2.5D-портфолио Бердібека Егеубая: Full-stack & Game Developer. Unity, Node.js, Python, Go, Docker.">
+  <title>Berdibek Egeubay — Full-stack & Game Developer</title>
+  <meta name="description" content="Interactive 2.5D portfolio of Berdibek Egeubay, Full-stack & Game Developer. Unity, Node.js, Python, Go, Docker.">
   <meta name="theme-color" content="#1b1b1f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23866043'/%3E%3Crect width='16' height='5' fill='%235d9b3a'/%3E%3Crect x='3' y='5' width='2' height='2' fill='%235d9b3a'/%3E%3Crect x='10' y='5' width='3' height='1' fill='%235d9b3a'/%3E%3Crect x='6' y='10' width='2' height='2' fill='%236b4a30'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <canvas id="world" aria-hidden="true"></canvas>
 
   <div id="game">
     <header class="topbar">
-      <a class="topbar__brand" href="#surface" aria-label="Наверх">БЕ</a>
-      <nav class="topbar__nav" aria-label="Уровни">
-        <a href="#surface">Поверхность</a>
-        <a href="#stack">Стек</a>
-        <a href="#projects">Проекты</a>
-        <a href="#contacts">Контакты</a>
+      <a class="topbar__brand" href="#surface" aria-label="Back to top">BE</a>
+      <nav class="topbar__nav" aria-label="Levels">
+        <a href="#surface">Surface</a>
+        <a href="#stack">Stack</a>
+        <a href="#projects">Projects</a>
+        <a href="#contacts">Contacts</a>
       </nav>
       <div class="topbar__actions">
-        <button class="icon-btn" id="chatBtn" data-action="chat" aria-label="Открыть чат (клавиша /)" title="Чат ( / )"></button>
-        <button class="icon-btn" id="muteBtn" data-action="mute" aria-label="Звук"></button>
+        <button class="icon-btn" id="chatBtn" data-action="chat" aria-label="Open chat (/ key)" title="Chat ( / )"></button>
+        <button class="icon-btn" id="muteBtn" data-action="mute" aria-label="Sound"></button>
       </div>
     </header>
 
     <div class="coords" id="coords" aria-hidden="true"></div>
 
     <main id="content">
-      <section class="level level--surface" id="surface" data-level="surface" aria-label="Поверхность"></section>
-      <section class="level level--stack" id="stack" data-level="stack" aria-label="Стек технологий"></section>
-      <section class="level level--projects" id="projects" data-level="projects" aria-label="Проекты"></section>
-      <section class="level level--contacts" id="contacts" data-level="contacts" aria-label="Достижения и контакты"></section>
+      <section class="level level--surface" id="surface" data-level="surface" aria-label="Surface"></section>
+      <section class="level level--stack" id="stack" data-level="stack" aria-label="Tech stack"></section>
+      <section class="level level--projects" id="projects" data-level="projects" aria-label="Projects"></section>
+      <section class="level level--contacts" id="contacts" data-level="contacts" aria-label="Advancements and contacts"></section>
     </main>
 
     <div class="hud">
@@ -44,14 +41,14 @@
         <span class="xp__lvl" id="xpLvl">0</span>
         <div class="xp__bar"><div class="xp__fill" id="xpFill"></div></div>
       </div>
-      <div class="hotbar" id="hotbar" role="listbox" aria-label="Хотбар: стек технологий"></div>
+      <div class="hotbar" id="hotbar" role="listbox" aria-label="Hotbar: tech stack"></div>
     </div>
 
     <div class="chat" id="chat">
       <ol class="chat__log" id="chatLog" aria-live="polite"></ol>
       <ul class="chat__suggest" id="chatSuggest" role="listbox" hidden></ul>
       <form class="chat__form" id="chatForm" hidden>
-        <input id="chatInput" type="text" autocomplete="off" spellcheck="false" aria-label="Команда чата" placeholder="/help">
+        <input id="chatInput" type="text" autocomplete="off" spellcheck="false" aria-label="Chat command" placeholder="/help">
       </form>
     </div>
 

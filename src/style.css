@@ -1,9 +1,16 @@
 /* ============================================================
    style.css — HTML-слой поверх 3D-сцены в стиле Minecraft GUI
    ============================================================ */
+/* Blockcraft — оригинальный пиксельный шрифт (scripts/build-font.mjs).
+   1 пиксель глифа = font-size / 8, поэтому размеры кратны 8px. */
+@font-face {
+  font-family: 'Blockcraft';
+  src: url('./assets/fonts/Blockcraft.otf') format('opentype');
+  font-display: block;
+}
 :root {
-  --font-pixel: 'Pixelify Sans', 'Segoe UI', system-ui, sans-serif;
-  --font-logo: 'Press Start 2P', 'Pixelify Sans', monospace;
+  --font-pixel: 'Blockcraft', 'Consolas', monospace;
+  --font-logo: 'Blockcraft', 'Consolas', monospace;
   --gui: #c6c6c6;
   --gui-light: #ffffff;
   --gui-dark: #555555;
@@ -26,8 +33,10 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-pixel);
-  font-size: 18px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.5;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
   color: #fff;
   background: #1b1b1f;
   overflow-x: hidden;
@@ -39,7 +48,7 @@ kbd {
   background: rgba(0, 0, 0, .45);
   border: 2px solid rgba(255, 255, 255, .35);
   padding: 0 6px;
-  font-size: .85em;
+  font-size: 16px;
 }
 :focus-visible { outline: 3px solid #ffff55; outline-offset: 2px; }
 button { font: inherit; color: inherit; }
@@ -77,7 +86,7 @@ body.no3d #world { display: none; }
 
 .level-title {
   font-family: var(--font-logo);
-  font-size: clamp(14px, 1.6vw, 20px);
+  font-size: 24px;
   line-height: 1.6;
   margin: 0 0 20px;
   display: inline-flex;
@@ -101,7 +110,7 @@ body.no3d #world { display: none; }
 }
 .topbar__brand {
   font-family: var(--font-logo);
-  font-size: 14px;
+  font-size: 16px;
   text-decoration: none;
   padding: 8px 10px;
   background: var(--tex-grass-side) center / 48px;
@@ -136,14 +145,14 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
   position: fixed;
   left: 16px; top: 68px;
   z-index: 15;
-  font-size: 15px;
+  font-size: 16px;
   color: #e0e0e0;
   text-shadow: 2px 2px 0 #3f3f3f;
   background: rgba(80, 80, 80, .45);
   padding: 2px 8px;
   pointer-events: none;
 }
-.coords b { color: #fff; font-weight: 500; }
+.coords b { color: #fff; font-weight: 400; }
 .coords span { color: #ffff55; }
 
 /* ---------- кнопки Minecraft ---------------------------------- */
@@ -155,7 +164,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
   min-height: 44px;
   padding: 8px 18px;
   font-family: var(--font-pixel);
-  font-size: 18px;
+  font-size: 16px;
   color: #fff;
   text-decoration: none;
   text-shadow: 2px 2px 0 #3f3f3f;
@@ -192,8 +201,8 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 }
 .gui__title {
   margin: 0 0 12px;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 400;
   display: flex; align-items: center; gap: 10px;
 }
 .gui--dark .gui__title { color: #fff; text-shadow: 2px 2px 0 #000; }
@@ -214,7 +223,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .slot--sm img.px-icon { width: 28px; height: 28px; }
 .slot__count {
   position: absolute; right: 3px; bottom: 0;
-  font-size: 14px; color: #fff; text-shadow: 2px 2px 0 #3f3f3f;
+  font-size: 16px; color: #fff; text-shadow: 2px 2px 0 #3f3f3f;
 }
 
 /* ---------- поверхность ---------------------------------------- */
@@ -224,12 +233,12 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
   margin: 0 0 14px;
   color: #ffff55;
   text-shadow: 2px 2px 0 #3f3f15;
-  font-size: 18px;
+  font-size: 16px;
 }
 .hero__title {
   font-family: var(--font-logo);
   font-weight: 400;
-  font-size: clamp(30px, 4.6vw, 64px);
+  font-size: 56px;
   line-height: 1.2;
   margin: 0 0 18px;
   color: #b8b8b8;
@@ -244,16 +253,16 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
   position: relative;
   margin: 0 0 14px;
   font-family: var(--font-logo);
-  font-size: clamp(13px, 1.4vw, 18px);
+  font-size: 24px;
   line-height: 1.7;
   text-shadow: 3px 3px 0 #000;
   display: inline-block;
 }
 .splash {
   position: absolute;
-  right: -150px; top: -30px;
+  left: 100%; top: -32px; margin-left: 12px;
   font-family: var(--font-pixel);
-  font-size: 22px;
+  font-size: 24px;
   color: #ffff00;
   text-shadow: 2px 2px 0 #3f3f00;
   white-space: nowrap;
@@ -265,18 +274,18 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .hero__tagline {
   max-width: 52ch;
   margin: 0 0 26px;
-  font-size: 20px;
+  font-size: 24px;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, .7);
   background: rgba(0, 0, 0, .35);
   padding: 8px 12px;
 }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
 .hero__actions .mc-btn { min-width: 200px; }
-.hero__actions .mc-btn--primary { min-width: 240px; font-size: 20px; }
+.hero__actions .mc-btn--primary { min-width: 240px; font-size: 24px; }
 .hero__hint { margin: 0; font-size: 16px; text-shadow: 2px 2px 0 #000; opacity: .9; }
 .scroll-cue {
   position: absolute; left: 50%; bottom: calc(var(--hud-h) + 4px);
-  font-size: 22px; text-shadow: 2px 2px 0 #000;
+  font-size: 24px; text-shadow: 2px 2px 0 #000;
   animation: bob 1.2s ease-in-out infinite;
 }
 @keyframes bob { 50% { transform: translateY(8px); } }
@@ -290,7 +299,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 /* ---------- верстак ---------------------------------------------- */
 .craft {
   display: grid;
-  grid-template-columns: 250px auto 1fr;
+  grid-template-columns: 290px auto 1fr;
   gap: 22px;
   align-items: start;
 }
@@ -309,8 +318,8 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .recipe:hover { background: rgba(255, 255, 255, .35); }
 .recipe[aria-selected="true"] { border-color: #fff; background: rgba(255, 255, 255, .5); box-shadow: 0 0 0 2px #000; }
 .recipe__text { display: grid; }
-.recipe__text strong { font-weight: 500; font-size: 18px; }
-.recipe__text small { font-size: 14px; color: #555; }
+.recipe__text strong { font-weight: 400; font-size: 16px; }
+.recipe__text small { font-size: 16px; color: #555; }
 .craft__area { display: flex; align-items: center; gap: 18px; }
 .craft__grid { display: grid; grid-template-columns: repeat(3, 52px); gap: 4px; }
 .craft__grid .slot.is-pop img { animation: pop .22s steps(4) both; }
@@ -325,7 +334,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .slot--result img.px-icon { width: 44px; height: 44px; }
 .slot--result.is-ready { animation: glow 1.6s ease-in-out infinite; }
 @keyframes glow { 50% { background: #a2a2c8; } }
-.craft__hint { font-size: 15px; color: #555; margin: 14px 0 0; max-width: 34ch; }
+.craft__hint { font-size: 16px; color: #555; margin: 14px 0 0; max-width: 34ch; }
 .craft__card {
   background: #e8e8e8;
   padding: 16px 18px;
@@ -335,10 +344,10 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .craft__card.is-in { animation: cardIn .25s ease-out; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } }
 .craft__card-head { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
-.craft__card h3 { margin: 0; font-size: 26px; font-weight: 700; color: #222; }
+.craft__card h3 { margin: 0; font-size: 24px; font-weight: 400; color: #222; }
 .chips { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.chips span { font-size: 14px; background: #3f3f3f; color: #ffff55; padding: 0 6px; }
-.craft__summary { margin: 0 0 8px; font-size: 18px; color: #222; }
+.chips span { font-size: 16px; background: #3f3f3f; color: #ffff55; padding: 0 6px; }
+.craft__summary { margin: 0 0 8px; font-size: 16px; color: #222; }
 .craft__features { margin: 0 0 14px; padding-left: 0; list-style: none; }
 .craft__features li { padding-left: 22px; position: relative; color: #333; }
 .craft__features li::before { content: ''; position: absolute; left: 4px; top: .55em; width: 8px; height: 8px; background: #55aa33; box-shadow: 2px 2px 0 #2f6f20; }
@@ -388,7 +397,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
   margin-left: -58px;
   min-width: 0;
 }
-.adv__info strong { display: block; font-weight: 500; color: #fff; background: #1e5aa8; margin: -8px -10px 6px; padding: 4px 10px; text-shadow: 2px 2px 0 #0c2a50; }
+.adv__info strong { display: block; font-weight: 400; color: #fff; background: #1e5aa8; margin: -8px -10px 6px; padding: 4px 10px; text-shadow: 2px 2px 0 #0c2a50; }
 .adv__node--challenge .adv__info strong { background: #6a2fb5; }
 .adv__node--goal .adv__info strong { background: #8a6a12; }
 .adv__info p { margin: 0; font-size: 16px; color: #ddd; }
@@ -396,13 +405,13 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .contacts { max-width: 560px; }
 .contacts__list { display: grid; gap: 10px; }
 .mc-btn--contact { justify-content: flex-start; width: 100%; }
-.mc-btn--contact small { margin-left: auto; font-size: 15px; color: #e0e0e0; opacity: .85; }
+.mc-btn--contact small { margin-left: auto; font-size: 16px; color: #e0e0e0; opacity: .85; }
 .mc-btn--cv { background-color: #8b2f2f; }
 .mc-btn--cv:hover { background-color: #b84a4a; }
 
-.footer { color: #ccc; font-size: 15px; text-shadow: 2px 2px 0 #000; background: rgba(0, 0, 0, .55); padding: 10px 14px; }
+.footer { color: #ccc; font-size: 16px; text-shadow: 2px 2px 0 #000; background: rgba(0, 0, 0, .55); padding: 10px 14px; }
 .footer p { margin: 0; }
-.footer__legal { opacity: .7; font-size: 14px; }
+.footer__legal { opacity: .7; font-size: 16px; }
 
 /* ---------- HUD: хотбар и опыт ------------------------------------- */
 .hud {
@@ -414,7 +423,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 }
 .hud__held {
   min-height: 26px;
-  font-size: 20px;
+  font-size: 24px;
   text-shadow: 2px 2px 0 #3f3f3f;
   opacity: 0;
   transition: opacity .3s;
@@ -425,7 +434,7 @@ body[data-section="contacts"] .topbar__nav a[href="#contacts"] { opacity: 1; col
 .xp__fill { height: 100%; background: linear-gradient(#a8ff4a, #5ac81e); transform-origin: left; transform: scaleX(0); transition: transform .15s linear; }
 .xp__lvl {
   position: absolute; left: 50%; top: -14px; transform: translateX(-50%);
-  font-family: var(--font-logo); font-size: 12px; color: #80ff20;
+  font-family: var(--font-logo); font-size: 16px; color: #80ff20;
   text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000;
 }
 .hotbar {
@@ -467,16 +476,16 @@ body[data-section="stack"] .hotbar { animation: hotbarPulse 1.6s ease-in-out 2; 
   border: 2px solid;
   border-image: linear-gradient(var(--tooltip-border-a), var(--tooltip-border-b)) 1;
   box-shadow: 0 0 0 2px var(--tooltip-bg);
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.35;
   pointer-events: none;
   display: grid;
   gap: 1px;
 }
-.mc-tooltip strong { font-weight: 500; text-shadow: 2px 2px 0 #3f3f3f; margin-bottom: 3px; }
+.mc-tooltip strong { font-weight: 400; text-shadow: 2px 2px 0 #3f3f3f; margin-bottom: 3px; }
 .mc-tooltip span { color: #aaaaaa; text-shadow: 2px 2px 0 #2a2a2a; }
 .mc-tooltip span::before { content: '› '; color: #5555ff; }
-.mc-tooltip em { font-style: normal; color: #555555; font-size: 14px; margin-top: 4px; }
+.mc-tooltip em { font-style: normal; color: #555555; font-size: 16px; margin-top: 4px; }
 
 /* ---------- чат ---------------------------------------------- */
 .chat {
@@ -495,7 +504,7 @@ body[data-section="stack"] .hotbar { animation: hotbarPulse 1.6s ease-in-out 2; 
 .chat__msg {
   background: rgba(0, 0, 0, .5);
   padding: 2px 8px;
-  font-size: 17px;
+  font-size: 16px;
   text-shadow: 2px 2px 0 #3f3f3f;
   transition: opacity .8s;
   max-width: min(560px, 100%);
@@ -522,7 +531,7 @@ body[data-section="stack"] .hotbar { animation: hotbarPulse 1.6s ease-in-out 2; 
 .chat__form { pointer-events: auto; }
 .chat__form input {
   width: 100%;
-  font: inherit; font-size: 18px;
+  font: inherit; font-size: 16px;
   color: #fff;
   background: rgba(0, 0, 0, .6);
   border: none;
@@ -542,7 +551,7 @@ body[data-section="stack"] .hotbar { animation: hotbarPulse 1.6s ease-in-out 2; 
   box-shadow: inset 2px 2px 0 #555, inset -2px -2px 0 #0a0a0a;
   animation: toastIn .3s steps(6) both;
 }
-.toast strong { display: block; color: #ffff55; font-weight: 500; }
+.toast strong { display: block; color: #ffff55; font-weight: 400; }
 .toast--challenge strong { color: #ff55ff; }
 .toast span { color: #fff; }
 .toast.is-out { animation: toastOut .5s steps(6) forwards; }
@@ -576,6 +585,9 @@ body.no3d .coords { display: none; }
 }
 @media (max-width: 767px) {
   body { font-size: 16px; }
+  .hero__title { font-size: 32px; }
+  .level-title { font-size: 16px; }
+  .hero__role { font-size: 16px; }
   :root { --hud-h: 120px; }
   .wrap { width: min(100% - 32px, 1200px); }
   .topbar { gap: 8px; padding-inline: 12px; }
@@ -583,7 +595,7 @@ body.no3d .coords { display: none; }
   .topbar__actions { margin-left: auto; }
   .level { padding-block: 90px var(--hud-h); min-height: auto; }
   .level--surface { min-height: 100svh; }
-  .splash { position: static; display: block; transform: rotate(-4deg); margin-top: 8px; font-size: 18px; }
+  .splash { position: static; display: block; transform: rotate(-4deg); margin-top: 8px; font-size: 16px; }
   @keyframes splash { to { transform: rotate(-4deg) scale(1.08); } }
   .hero__actions .mc-btn, .hero__actions .mc-btn--primary { min-width: 0; width: 100%; }
   .hero__hint { display: none; }
@@ -594,6 +606,8 @@ body.no3d .coords { display: none; }
   .craft__area { justify-content: center; flex-wrap: wrap; }
   .craft__hint { max-width: none; text-align: center; }
   .bedrock { grid-template-columns: 1fr; }
+  .mc-btn--contact { flex-wrap: wrap; }
+  .mc-btn--contact small { margin-left: 30px; flex-basis: 100%; overflow-wrap: anywhere; }
   .adv__tree { grid-template-columns: 1fr; gap: 14px; }
   .adv__node:not(:last-child)::after { left: 27px; right: auto; top: 58px; width: 4px; height: calc(100% - 40px); box-shadow: 2px 0 0 #000, -2px 0 0 #000; }
   .adv__info { margin: 0; }

@@ -1,96 +1,95 @@
 // ============================================================
-//  data.js — весь контент портфолио в одном месте.
-//  Редактируй тексты, проекты, ссылки и контакты здесь.
+//  data.js — all portfolio content in one place.
+//  Edit texts, projects, links and contacts here.
 // ============================================================
 
 export const profile = {
-  name: 'Бердібек Егеубай',
-  nameLatin: 'Berdibek Egeubay',
+  name: 'Berdibek Egeubay',
   role: 'Full-stack & Game Developer',
-  tagline: 'Собираю веб-платформы, игры и инструменты — от сервера до последнего пикселя.',
-  location: 'Астана, Казахстан',
-  // Положи свой PDF в public/cv/ и поправь путь.
+  tagline: 'I build web platforms, games and tools — from the server down to the last pixel.',
+  location: 'Astana, Kazakhstan',
+  // Put your PDF into public/cv/ and adjust the path.
   cvUrl: 'cv/Berdibek_Egeubay_CV.pdf',
   cvFileName: 'Berdibek_Egeubay_CV.pdf',
 };
 
 export const contacts = [
-  { id: 'github',   label: 'GitHub',   value: '@bekw-eg',                  href: 'https://github.com/bekw-eg',          icon: 'github' },
-  { id: 'telegram', label: 'Telegram', value: '@zdeathbecaq',              href: 'https://t.me/zdeathbecaq',            icon: 'telegram' },
-  { id: 'email',    label: 'Email',    value: 'berdibekegeubai@gmail.com', href: 'mailto:berdibekegeubai@gmail.com',    icon: 'email' },
+  { id: 'github',   label: 'GitHub',   value: '@bekw-eg',                  href: 'https://github.com/bekw-eg',       icon: 'github' },
+  { id: 'telegram', label: 'Telegram', value: '@zdeathbecaq',              href: 'https://t.me/zdeathbecaq',         icon: 'telegram' },
+  { id: 'email',    label: 'Email',    value: 'berdibekegeubai@gmail.com', href: 'mailto:berdibekegeubai@gmail.com', icon: 'email' },
 ];
 
-// Хотбар: id → иконка из textures.js (drawItemIcon).
+// Hotbar: id → item icon from textures.js.
 export const stack = [
   {
     id: 'unity', name: 'C# / Unity', rarity: 'epic',
     lines: [
-      'Геймплей, физика и UI для 2D/3D игр',
-      'Системы скинов, боссов и сохранений',
-      'Pixel-perfect рендер и анимации',
+      'Gameplay, physics and UI for 2D/3D games',
+      'Skin, boss and save systems',
+      'Pixel-perfect rendering and animation',
     ],
   },
   {
     id: 'node', name: 'Node.js / JS', rarity: 'rare',
     lines: [
-      'REST/WebSocket-бэкенды и real-time',
-      'Фронтенд на Vanilla JS, Vite, Three.js',
-      'Авторизация, комнаты, синхронизация',
+      'REST/WebSocket backends and real-time apps',
+      'Frontend with Vanilla JS, Vite, Three.js',
+      'Auth, rooms, state sync',
     ],
   },
   {
     id: 'python', name: 'Python', rarity: 'rare',
     lines: [
-      'RAG-пайплайны и прототипы с LLM',
-      'Парсинг, анализ данных, автоматизация',
-      'Быстрые API на FastAPI/Flask',
+      'RAG pipelines and LLM prototypes',
+      'Scraping, data analysis, automation',
+      'Quick APIs with FastAPI/Flask',
     ],
   },
   {
     id: 'go', name: 'Go', rarity: 'uncommon',
     lines: [
-      'Лёгкие сервисы и CLI-утилиты',
-      'Конкурентность на горутинах',
-      'Производительные HTTP-хендлеры',
+      'Lightweight services and CLI tools',
+      'Concurrency with goroutines',
+      'Fast HTTP handlers',
     ],
   },
   {
     id: 'docker', name: 'Docker', rarity: 'uncommon',
     lines: [
-      'Контейнеризация сервисов и БД',
-      'docker-compose для dev-окружения',
-      'Воспроизводимые деплои',
+      'Containerized services and databases',
+      'docker-compose dev environments',
+      'Reproducible deploys',
     ],
   },
   {
     id: 'sqlite', name: 'WebSockets / SQLite', rarity: 'rare',
     lines: [
-      'Синхронизация состояния между клиентами',
-      'Голос/таймеры/чаты в реальном времени',
-      'Встраиваемая БД без лишней инфраструктуры',
+      'State sync between clients',
+      'Real-time voice, timers and chat',
+      'Embedded DB with zero extra infra',
     ],
   },
   {
     id: 'blender', name: 'Blender', rarity: 'uncommon',
     lines: [
-      'Low-poly и воксельные модели',
-      'Экспорт .glb для веба и Unity',
-      'Простые анимации и рендеры',
+      'Low-poly and voxel models',
+      '.glb export for web and Unity',
+      'Simple animations and renders',
     ],
   },
 ];
 
-// Ингредиенты-предметы, которые не входят в хотбар, но нужны для рецептов.
+// Ingredient items used only in crafting recipes.
 export const extraItems = {
   pixel: { name: 'Pixel Art' },
   rag:   { name: 'RAG' },
   voice: { name: 'Voice Chat' },
   tower: { name: 'Tower Defense' },
   apple: { name: 'Appi' },
-  map:   { name: 'Карта города' },
+  map:   { name: 'City Map' },
 };
 
-// Проекты для «Верстака». grid — 9 ячеек (null = пусто), значения — id предметов.
+// Crafting-table projects. grid = 9 cells (null = empty), values are item ids.
 export const projects = [
   {
     id: 'antistall',
@@ -102,12 +101,12 @@ export const projects = [
       'sqlite', 'voice', 'sqlite',
       null,     'tower', null,
     ],
-    summary: 'Веб-платформа для командной работы без прокрастинации.',
+    summary: 'A teamwork platform that fights procrastination.',
     features: [
-      'Синхронизированный Pomodoro-таймер для всей команды',
-      'Голосовой чат прямо в комнате',
-      'Роадмап задач с прогрессом',
-      'Мини-игра Tower Defense на время перерыва',
+      'Pomodoro timer synced across the whole team',
+      'Built-in voice chat for every room',
+      'Task roadmap with progress tracking',
+      'Tower Defense mini-game for breaks',
     ],
     links: { code: '', demo: '' },
   },
@@ -121,12 +120,12 @@ export const projects = [
       'unity', 'unity', 'unity',
       null,    'pixel', null,
     ],
-    summary: '2D-платформер про яблоко Appi.',
+    summary: 'A 2D platformer about Appi the apple.',
     features: [
-      'Несколько миров с уникальными механиками',
-      'Боссы с паттернами атак',
-      'Гардероб скинов',
-      'Механика бросков',
+      'Several worlds with unique mechanics',
+      'Bosses with attack patterns',
+      'Skin wardrobe',
+      'Throwing mechanic',
     ],
     links: { code: 'https://github.com/bekw-eg/Trapple', demo: '' },
   },
@@ -140,42 +139,42 @@ export const projects = [
       'python', 'rag',    'python',
       null,     'python', null,
     ],
-    summary: 'Интеллектуальный гид по городу — концепт и прототип с хакатона.',
+    summary: 'A smart city guide — concept and prototype built at a hackathon.',
     features: [
-      'Рекомендации локаций под интересы пользователя',
-      'RAG поверх базы мест и отзывов',
-      'Разработан за время хакатона командой',
+      'Recommends places based on your interests',
+      'RAG over a base of places and reviews',
+      'Built by a team during a hackathon',
     ],
     links: { code: '', demo: '' },
   },
 ];
 
-// Ветка достижений. parent — id родителя (для линий-связей).
+// Advancement tree. parent = id of the parent node (for connector lines).
 export const advancements = [
   {
     id: 'college', icon: 'book', frame: 'task',
-    title: 'Обучение в AITU College',
-    desc: 'Software Engineering: алгоритмы, веб, базы данных, командные проекты.',
+    title: 'Studying at AITU College',
+    desc: 'Software Engineering: algorithms, web, databases, team projects.',
     parent: null,
   },
   {
     id: 'practice', icon: 'pickaxe', frame: 'goal',
-    title: 'Производственная практика',
-    desc: 'Разработка и геймдизайн: от механик и баланса до кода в продакшене.',
+    title: 'Industrial Internship',
+    desc: 'Development and game design: from mechanics and balance to production code.',
     parent: 'college',
   },
   {
     id: 'datathon', icon: 'diamond', frame: 'challenge',
     title: "DATATHON '26",
-    desc: 'Участие в соревновании по анализу данных и ML.',
+    desc: 'Competed in a data analysis and ML challenge.',
     parent: 'practice',
   },
 ];
 
-// Команды чата (описания для автодополнения). Обработчики — в ui.js.
+// Chat commands (descriptions for autocomplete). Handlers live in ui.js.
 export const chatCommands = [
-  { cmd: '/cv',                desc: 'скачать резюме' },
-  { cmd: '/contacts',          desc: 'показать контакты' },
-  { cmd: '/mute',              desc: 'вкл/выкл звук' },
-  { cmd: '/help',              desc: 'список команд' },
+  { cmd: '/cv',       desc: 'download resume' },
+  { cmd: '/contacts', desc: 'show contacts' },
+  { cmd: '/mute',     desc: 'toggle sound' },
+  { cmd: '/help',     desc: 'list commands' },
 ];
