@@ -4,44 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Berdibek Egeubay — Full-stack & Game Developer</title>
-  <meta name="description" content="Interactive 2.5D portfolio of Berdibek Egeubay, Full-stack & Game Developer. Unity, Node.js, Python, Go, Docker.">
-  <meta name="theme-color" content="#1b1b1f">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23866043'/%3E%3Crect width='16' height='5' fill='%235d9b3a'/%3E%3Crect x='3' y='5' width='2' height='2' fill='%235d9b3a'/%3E%3Crect x='10' y='5' width='3' height='1' fill='%235d9b3a'/%3E%3Crect x='6' y='10' width='2' height='2' fill='%236b4a30'/%3E%3C/svg%3E">
+  <meta name="description" content="Interactive 2.5D portfolio of Berdibek Egeubay, Full-stack & Game Developer. Explore floating islands in the Void, collect tech shards and light the portal.">
+  <meta name="theme-color" content="#07040f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%2307040f'/%3E%3Cpath d='M8 1l5 5-5 9-5-9z' fill='%233fd4b0'/%3E%3Cpath d='M8 1v14L3 6z' fill='%23b8ffee'/%3E%3C/svg%3E">
 </head>
 <body>
   <canvas id="world" aria-hidden="true"></canvas>
 
+  <!-- Sound gate -->
+  <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
+    <div class="gate__rings" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="gate__inner">
+      <div class="gate__disc" id="gateDisc" aria-hidden="true"></div>
+      <p class="gate__kicker">For full immersion</p>
+      <h1 class="gate__title" id="gateTitle">Turn on the sound</h1>
+      <p class="gate__text">Islands, crystals and a portal — this world was made to be heard.<br>Headphones recommended.</p>
+      <button class="btn btn--primary btn--big" id="gateOn"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Turn on sound</button>
+      <button class="link-btn" id="gateOff">Continue without sound</button>
+    </div>
+  </div>
+
   <div id="game">
     <header class="topbar">
-      <a class="topbar__brand" href="#surface" aria-label="Back to top">BE</a>
-      <nav class="topbar__nav" aria-label="Levels">
-        <a href="#surface">Surface</a>
+      <a class="topbar__brand" href="#home" aria-label="Back to top">BERDIBEK<span>'26</span></a>
+      <nav class="topbar__nav" aria-label="Sections">
+        <a href="#home">Home</a>
         <a href="#stack">Stack</a>
         <a href="#projects">Projects</a>
-        <a href="#contacts">Contacts</a>
+        <a href="#path">Path</a>
+        <a href="#about">About</a>
+        <a href="#portal">Portal</a>
       </nav>
       <div class="topbar__actions">
         <button class="icon-btn" id="chatBtn" data-action="chat" aria-label="Open chat (/ key)" title="Chat ( / )"></button>
+        <button class="icon-btn" id="musicBtn" data-action="music" aria-label="Music"></button>
         <button class="icon-btn" id="muteBtn" data-action="mute" aria-label="Sound"></button>
+        <a class="btn btn--primary btn--sm" href="#portal">Contact</a>
       </div>
     </header>
 
-    <div class="coords" id="coords" aria-hidden="true"></div>
-
     <main id="content">
-      <section class="level level--surface" id="surface" data-level="surface" aria-label="Surface"></section>
-      <section class="level level--stack" id="stack" data-level="stack" aria-label="Tech stack"></section>
-      <section class="level level--projects" id="projects" data-level="projects" aria-label="Projects"></section>
-      <section class="level level--contacts" id="contacts" data-level="contacts" aria-label="Advancements and contacts"></section>
+      <section class="level" id="home" data-level="home" aria-label="Home"></section>
+      <section class="level" id="stack" data-level="stack" aria-label="Tech stack"></section>
+      <section class="level" id="projects" data-level="projects" aria-label="Projects"></section>
+      <section class="level" id="path" data-level="path" aria-label="Path"></section>
+      <section class="level" id="about" data-level="about" aria-label="About"></section>
+      <section class="level" id="portal" data-level="portal" aria-label="Portal"></section>
+      <section class="level level--contacts" id="contacts" data-level="contacts" aria-label="Contacts"></section>
     </main>
 
     <div class="hud">
+      <div class="hud__label"><span id="shardCount">SHARDS 0/7</span><button class="link-btn" id="whereBtn">where?</button></div>
       <div class="hud__held" id="heldName" aria-live="polite"></div>
-      <div class="xp" aria-hidden="true">
-        <span class="xp__lvl" id="xpLvl">0</span>
-        <div class="xp__bar"><div class="xp__fill" id="xpFill"></div></div>
-      </div>
-      <div class="hotbar" id="hotbar" role="listbox" aria-label="Hotbar: tech stack"></div>
+      <div class="hotbar" id="hotbar" role="listbox" aria-label="Hotbar: collected tech shards"></div>
     </div>
 
     <div class="chat" id="chat">
@@ -55,6 +70,7 @@
     <div class="toasts" id="toasts" aria-live="polite"></div>
   </div>
 
+  <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="mc-tooltip" id="tooltip" role="tooltip" hidden></div>
 
   <script type="module" src="/src/main.js"></script>

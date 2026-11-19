@@ -19,10 +19,10 @@ export const contacts = [
   { id: 'email',    label: 'Email',    value: 'berdibekegeubai@gmail.com', href: 'mailto:berdibekegeubai@gmail.com', icon: 'email' },
 ];
 
-// Hotbar: id → item icon from textures.js.
+// Hotbar: id → item icon from textures.js. color = shard crystal colour in the Void.
 export const stack = [
   {
-    id: 'unity', name: 'C# / Unity', rarity: 'epic',
+    id: 'unity', color: '#e8ecff', name: 'C# / Unity', rarity: 'epic',
     lines: [
       'Gameplay, physics and UI for 2D/3D games',
       'Skin, boss and save systems',
@@ -30,7 +30,7 @@ export const stack = [
     ],
   },
   {
-    id: 'node', name: 'Node.js / JS', rarity: 'rare',
+    id: 'node', color: '#6cc24a', name: 'Node.js / JS', rarity: 'rare',
     lines: [
       'REST/WebSocket backends and real-time apps',
       'Frontend with Vanilla JS, Vite, Three.js',
@@ -38,7 +38,7 @@ export const stack = [
     ],
   },
   {
-    id: 'python', name: 'Python', rarity: 'rare',
+    id: 'python', color: '#ffd43b', name: 'Python', rarity: 'rare',
     lines: [
       'RAG pipelines and LLM prototypes',
       'Scraping, data analysis, automation',
@@ -46,7 +46,7 @@ export const stack = [
     ],
   },
   {
-    id: 'go', name: 'Go', rarity: 'uncommon',
+    id: 'go', color: '#3fd4f0', name: 'Go', rarity: 'uncommon',
     lines: [
       'Lightweight services and CLI tools',
       'Concurrency with goroutines',
@@ -54,7 +54,7 @@ export const stack = [
     ],
   },
   {
-    id: 'docker', name: 'Docker', rarity: 'uncommon',
+    id: 'docker', color: '#2f9bff', name: 'Docker', rarity: 'uncommon',
     lines: [
       'Containerized services and databases',
       'docker-compose dev environments',
@@ -62,7 +62,7 @@ export const stack = [
     ],
   },
   {
-    id: 'sqlite', name: 'WebSockets / SQLite', rarity: 'rare',
+    id: 'sqlite', color: '#7fb8e6', name: 'WebSockets / SQLite', rarity: 'rare',
     lines: [
       'State sync between clients',
       'Real-time voice, timers and chat',
@@ -70,7 +70,7 @@ export const stack = [
     ],
   },
   {
-    id: 'blender', name: 'Blender', rarity: 'uncommon',
+    id: 'blender', color: '#ff8a1f', name: 'Blender', rarity: 'uncommon',
     lines: [
       'Low-poly and voxel models',
       '.glb export for web and Unity',
@@ -149,25 +149,73 @@ export const projects = [
   },
 ];
 
-// Advancement tree. parent = id of the parent node (for connector lines).
-export const advancements = [
+// The Path: journey stops shown as floating islands. status: done | now | next
+export const journey = [
   {
-    id: 'college', icon: 'book', frame: 'task',
-    title: 'Studying at AITU College',
-    desc: 'Software Engineering: algorithms, web, databases, team projects.',
-    parent: null,
+    id: 'college', icon: 'book', status: 'done', when: 'Ongoing',
+    title: 'AITU College',
+    desc: 'Software Engineering: algorithms, web, databases and team projects.',
   },
   {
-    id: 'practice', icon: 'pickaxe', frame: 'goal',
+    id: 'practice', icon: 'pickaxe', status: 'done', when: 'Internship',
     title: 'Industrial Internship',
-    desc: 'Development and game design: from mechanics and balance to production code.',
-    parent: 'college',
+    desc: 'Development and game design — from mechanics and balance to production code.',
   },
   {
-    id: 'datathon', icon: 'diamond', frame: 'challenge',
+    id: 'datathon', icon: 'diamond', status: 'now', when: "Oct '26",
     title: "DATATHON '26",
-    desc: 'Competed in a data analysis and ML challenge.',
-    parent: 'practice',
+    desc: '24 hours with a real dataset: find the signal, build the model, pitch it to the jury.',
+  },
+  {
+    id: 'next', icon: 'compass', status: 'next', when: 'Next',
+    title: 'Your team?',
+    desc: 'Looking for the next island to land on — internship or junior role.',
+  },
+];
+
+// The Book of Answers — "about me" as chapters. Edit freely.
+export const book = [
+  {
+    q: 'Who are you?',
+    a: [
+      "I'm Berdibek — a full-stack and game developer from Astana, Kazakhstan.",
+      'I study Software Engineering at AITU College and spend the rest of my time shipping things: web platforms, games and small tools.',
+    ],
+  },
+  {
+    q: 'What do you build?',
+    a: [
+      'Real-time web apps (timers, voice rooms, shared state over WebSockets), 2D games in Unity, and AI prototypes in Python.',
+      'This site is one too: a procedural voxel world in Three.js with zero external assets.',
+    ],
+  },
+  {
+    q: 'Favourite stack?',
+    a: [
+      'Node.js + WebSockets + SQLite when something has to be live and simple.',
+      'C# and Unity for games, Python for data and RAG, Go and Docker when it needs to run fast and anywhere.',
+    ],
+  },
+  {
+    q: 'Do you work in teams?',
+    a: [
+      'Yes — hackathons and my internship were all team work: splitting tasks, reviewing code, and pitching the result together.',
+      'I am comfortable being the one who glues the backend, the frontend and the demo into one thing that works.',
+    ],
+  },
+  {
+    q: 'Are you open to work?',
+    a: [
+      'Yes. I am looking for an internship or a junior role in full-stack or game development.',
+      'Astana on-site or remote both work.',
+    ],
+  },
+  {
+    q: 'How do I reach you?',
+    a: [
+      'Telegram is the fastest: @zdeathbecaq.',
+      'Email works too: berdibekegeubai@gmail.com — or just light the portal at the bottom of this page.',
+    ],
   },
 ];
 
@@ -175,6 +223,8 @@ export const advancements = [
 export const chatCommands = [
   { cmd: '/cv',       desc: 'download resume' },
   { cmd: '/contacts', desc: 'show contacts' },
-  { cmd: '/mute',     desc: 'toggle sound' },
+  { cmd: '/shards',   desc: 'where is the next shard?' },
+  { cmd: '/music',    desc: 'toggle music' },
+  { cmd: '/mute',     desc: 'toggle all sound' },
   { cmd: '/help',     desc: 'list commands' },
 ];

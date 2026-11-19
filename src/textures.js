@@ -224,6 +224,82 @@ const GEN = {
         px(ctx, x, y, `rgba(${Math.round(90 + k * 120)},${Math.round(10 + k * 50)},${Math.round(170 + k * 85)},${0.72 + k * 0.25})`);
       }
   },
+
+  // ---------- The Void ----------
+  end_stone(ctx, r) {
+    speckle(ctx, ['#dbd9a0', '#e3e1ae', '#d2cf91', '#e8e6b9', '#dbd9a0', '#cbc786'], r);
+    for (let i = 0; i < 7; i++) {
+      const x = Math.floor(r() * 15), y = Math.floor(r() * 15);
+      px(ctx, x, y, '#b9b56f'); if (r() < 0.5) px(ctx, x + 1, y, '#c4c07c');
+    }
+  },
+  end_stone_bricks(ctx, r) {
+    speckle(ctx, ['#dedcaa', '#e6e4b8', '#d5d297', '#e2e0b2'], r);
+    ctx.fillStyle = '#aaa565';
+    ctx.fillRect(0, 7, 16, 1); ctx.fillRect(0, 15, 16, 1);
+    ctx.fillRect(7, 0, 1, 7); ctx.fillRect(15, 0, 1, 7); ctx.fillRect(3, 8, 1, 7); ctx.fillRect(11, 8, 1, 7);
+  },
+  purpur(ctx, r) {
+    speckle(ctx, ['#a77ba7', '#b08ab0', '#9e709e', '#b893b8'], r);
+    ctx.fillStyle = '#7f527f';
+    ctx.fillRect(0, 0, 16, 1); ctx.fillRect(0, 8, 16, 1); ctx.fillRect(0, 0, 1, 16); ctx.fillRect(8, 0, 1, 16);
+    ctx.fillStyle = '#c9a6c9';
+    ctx.fillRect(1, 1, 7, 1); ctx.fillRect(9, 9, 7, 1); ctx.fillRect(1, 9, 1, 7); ctx.fillRect(9, 1, 1, 7);
+  },
+  chorus(ctx, r) {
+    speckle(ctx, ['#7d5290', '#8c60a0', '#6b4580', '#9670ab'], r);
+    for (let i = 0; i < 9; i++) px(ctx, Math.floor(r() * 16), Math.floor(r() * 16), '#a984bd');
+  },
+  chorus_flower(ctx, r) {
+    speckle(ctx, ['#9a72b0', '#b28fc8', '#86609c', '#c7a6dc'], r);
+    ctx.fillStyle = '#e6d2f5';
+    ctx.fillRect(6, 6, 4, 4);
+  },
+  amethyst(ctx, r) {
+    speckle(ctx, ['#8a5fcf', '#9a70e0', '#7650bd', '#a982f0', '#6b44a8'], r);
+    ctx.fillStyle = '#d9c2ff';
+    for (let i = 0; i < 5; i++) { const x = Math.floor(r() * 14), y = Math.floor(r() * 14); ctx.fillRect(x, y, 2, 1); ctx.fillRect(x, y + 1, 1, 1); }
+  },
+  end_rod(ctx) {
+    ctx.fillStyle = '#efe9ff'; ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(5, 0, 6, 16);
+    ctx.fillStyle = '#c9bfe8'; ctx.fillRect(0, 0, 3, 16); ctx.fillRect(13, 0, 3, 16);
+  },
+  void_frame(ctx, r) {
+    speckle(ctx, ['#2f4f4a', '#355850', '#2a4742', '#3b625a'], r);
+    ctx.fillStyle = '#1d322e'; ctx.fillRect(0, 15, 16, 1); ctx.fillRect(15, 0, 1, 16);
+    ctx.fillStyle = '#5e8f83'; ctx.fillRect(0, 0, 16, 1); ctx.fillRect(0, 0, 1, 16);
+  },
+  socket_empty(ctx, r) {
+    GEN.void_frame(ctx, r);
+    ctx.fillStyle = '#0c1412'; ctx.fillRect(4, 4, 8, 8);
+    ctx.fillStyle = '#16231f'; ctx.fillRect(5, 5, 6, 6);
+  },
+  socket_lit(ctx, r) {
+    GEN.void_frame(ctx, r);
+    ctx.fillStyle = '#0c1412'; ctx.fillRect(4, 4, 8, 8);
+    ctx.fillStyle = '#3fd4b0'; ctx.fillRect(5, 5, 6, 6);
+    ctx.fillStyle = '#b8ffee'; ctx.fillRect(6, 6, 2, 2);
+    ctx.fillStyle = '#1f8a73'; ctx.fillRect(9, 9, 2, 2);
+  },
+  void_portal(ctx, r, t = 0) {
+    ctx.fillStyle = '#05030c'; ctx.fillRect(0, 0, 16, 16);
+    const cols = ['#3fd4b0', '#b48cff', '#ffffff', '#6a8cff', '#2a1d4e'];
+    for (let i = 0; i < 26; i++) {
+      const x = Math.floor((r() * 16 + t * (2 + (i % 3))) % 16);
+      const y = Math.floor((r() * 16 + t * (1 + (i % 2))) % 16);
+      px(ctx, x, y, cols[i % cols.length]);
+    }
+  },
+  bookshelf(ctx, r) {
+    GEN.planks(ctx, r);
+    const books = ['#7a2f2f', '#2f4f7a', '#2f7a4a', '#7a6a2f', '#5a2f7a', '#8a8a8a'];
+    for (const y0 of [1, 9]) {
+      ctx.fillStyle = '#3a2a14'; ctx.fillRect(0, y0, 16, 6);
+      let x = 1;
+      while (x < 15) { const w = 1 + Math.floor(r() * 2); ctx.fillStyle = books[Math.floor(r() * books.length)]; ctx.fillRect(x, y0 + (r() < 0.3 ? 1 : 0), w, 6); x += w + (r() < 0.2 ? 1 : 0); }
+    }
+  },
 };
 
 export const BLOCK_TEXTURES = Object.keys(GEN);
@@ -447,6 +523,35 @@ const ICONS = {
     rect(ctx, '#e8e8e8', 2, 6, 3, 4); poly(ctx, '#e8e8e8', [5, 6, 9, 2, 9, 14, 5, 10]);
     rect(ctx, '#ff5555', 11, 6, 1, 1); rect(ctx, '#ff5555', 12, 7, 1, 1); rect(ctx, '#ff5555', 13, 8, 1, 1); rect(ctx, '#ff5555', 14, 9, 1, 1);
     rect(ctx, '#ff5555', 14, 6, 1, 1); rect(ctx, '#ff5555', 13, 7, 1, 1); rect(ctx, '#ff5555', 11, 9, 1, 1); rect(ctx, '#ff5555', 12, 8, 1, 1);
+  },
+  disc(ctx) { // music disc
+    circle(ctx, '#1d1d24', 8, 8, 7.5);
+    ring(ctx, '#2c2c36', 8, 8, 4.5, 6);
+    circle(ctx, '#b48cff', 8, 8, 3);
+    circle(ctx, '#3fd4b0', 8, 8, 1.5);
+    rect(ctx, '#05030c', 7, 7, 2, 2);
+    rect(ctx, '#ffffff', 4, 4, 1, 1); rect(ctx, '#5a5a6a', 11, 3, 1, 1);
+  },
+  shard(ctx) {
+    poly(ctx, '#3fd4b0', [8, 0.5, 13, 6, 8, 15.5, 3, 6]);
+    poly(ctx, '#b8ffee', [8, 0.5, 8, 15.5, 3, 6]);
+    poly(ctx, '#1f8a73', [13, 6, 8, 15.5, 8, 9]);
+  },
+  shard_empty(ctx) {
+    poly(ctx, '#3a2f58', [8, 0.5, 13, 6, 8, 15.5, 3, 6]);
+    poly(ctx, '#4a3d70', [8, 0.5, 8, 15.5, 3, 6]);
+  },
+  ship(ctx) { // small airship
+    rect(ctx, '#d9d4ff', 7, 1, 1, 7);
+    poly(ctx, '#f4f0ff', [8, 1, 14, 7, 8, 7]);
+    poly(ctx, '#b48cff', [6, 2, 6, 7, 2, 7]);
+    poly(ctx, '#8a5a2a', [1, 9, 15, 9, 13, 13, 3, 13]);
+    rect(ctx, '#5a3a1a', 3, 10, 10, 1);
+  },
+  portal(ctx) {
+    rect(ctx, '#2f4f4a', 1, 1, 14, 14);
+    rect(ctx, '#05030c', 3, 3, 10, 10);
+    rect(ctx, '#3fd4b0', 5, 5, 1, 1); rect(ctx, '#b48cff', 9, 7, 1, 1); rect(ctx, '#ffffff', 7, 10, 1, 1); rect(ctx, '#3fd4b0', 11, 4, 1, 1);
   },
 };
 

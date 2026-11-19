@@ -1,54 +1,41 @@
 // ============================================================
-//  blocks.js — реестр типов блоков.
+//  blocks.js — block type registry.
 //
-//  Каждый блок рендерится одним InstancedMesh (1 draw call на тип).
-//  Текстуры граней берутся из textures.js по имени.
+//  Every block type is rendered as one InstancedMesh (1 draw call per type).
+//  Face textures are looked up by name in textures.js.
 //
-//  Как заменить блок на модель из Blender:
-//    1. Экспортируй модель в .glb (1 блок = 1×1×1 м, центр в начале координат).
-//    2. Положи файл в public/models/, например public/models/crafting_table.glb
-//    3. Укажи путь в поле model:  crafting_table: { ..., model: '/models/crafting_table.glb' }
-//  scene.js загрузит модель через GLTFLoader и подменит кубы на инстансы
-//  первой найденной в файле сетки — позиции и анимации останутся прежними.
+//  Swapping a block for a Blender model:
+//    1. Export a .glb (1 block = 1×1×1 m, origin at the centre).
+//    2. Put it into public/models/, e.g. public/models/crafting_table.glb
+//    3. Add  model: 'models/crafting_table.glb'  to the block below.
+//  scene.js loads it with GLTFLoader and replaces the cubes with instances
+//  of the first mesh in the file — positions stay the same.
 // ============================================================
 
 /**
  * faces: { all } | { top, bottom, side, front? }
- * emissive: 0..1 — свечение (без источников света, дёшево)
- * alphaTest: для «дырявых» текстур (листва)
- * transparent / opacity: полупрозрачные (портал)
- * animated: текстура перерисовывается каждый кадр
- * solid: false — не скрывает соседей при отсечении невидимых граней
- * model: путь к .glb для замены куба
+ * emissive: 0..1 — self-glow (cheap, no extra lights)
+ * alphaTest: for textures with holes
+ * transparent / opacity: translucent blocks
+ * solid: false — does not hide neighbours when culling invisible blocks
+ * thin: rendered as a thin pillar (end rods)
+ * model: path to a .glb that replaces the cube
  */
 export const BLOCKS = {
-  grass:          { faces: { top: 'grass_top', side: 'grass_side', bottom: 'dirt' } },
-  dirt:           { faces: { all: 'dirt' } },
-  gravel:         { faces: { all: 'gravel' } },
-  stone:          { faces: { all: 'stone' } },
-  cobble:         { faces: { all: 'cobble' } },
-  deepslate:      { faces: { all: 'deepslate' } },
-  coal_ore:       { faces: { all: 'coal_ore' } },
-  iron_ore:       { faces: { all: 'iron_ore' } },
-  gold_ore:       { faces: { all: 'gold_ore' } },
-  emerald_ore:    { faces: { all: 'emerald_ore' } },
-  diamond_ore:    { faces: { all: 'diamond_ore' }, emissive: 0.15 },
-  redstone_ore:   { faces: { all: 'redstone_ore' }, emissive: 0.35 },
-  redstone_block: { faces: { all: 'redstone_block' }, emissive: 0.25 },
-  redstone_lamp:  { faces: { all: 'redstone_lamp' }, emissive: 0.9 },
-  obsidian:       { faces: { all: 'obsidian' } },
-  crying_obsidian:{ faces: { all: 'crying_obsidian' }, emissive: 0.2 },
-  bedrock:        { faces: { all: 'bedrock' } },
-  netherrack:     { faces: { all: 'netherrack' } },
-  nether_bricks:  { faces: { all: 'nether_bricks' } },
-  glowstone:      { faces: { all: 'glowstone' }, emissive: 0.9 },
-  lava:           { faces: { all: 'lava' }, emissive: 1, scroll: true },
-  log:            { faces: { top: 'log_top', bottom: 'log_top', side: 'log_side' } },
-  leaves:         { faces: { all: 'leaves' }, alphaTest: 0.5, solid: false },
-  planks:         { faces: { all: 'planks' } },
+  end_stone:        { faces: { all: 'end_stone' } },
+  end_stone_bricks: { faces: { all: 'end_stone_bricks' } },
+  purpur:           { faces: { all: 'purpur' } },
+  obsidian:         { faces: { all: 'obsidian' } },
+  crying_obsidian:  { faces: { all: 'crying_obsidian' }, emissive: 0.25 },
+  chorus:           { faces: { all: 'chorus' }, solid: false },
+  chorus_flower:    { faces: { all: 'chorus_flower' }, emissive: 0.35, solid: false },
+  amethyst:         { faces: { all: 'amethyst' }, emissive: 0.3 },
+  end_rod:          { faces: { all: 'end_rod' }, emissive: 1, solid: false, thin: true },
+  planks:           { faces: { all: 'planks' } },
+  bookshelf:        { faces: { top: 'planks', bottom: 'planks', side: 'bookshelf' } },
   crafting_table: {
     faces: { top: 'crafting_top', bottom: 'planks', side: 'crafting_side', front: 'crafting_front' },
-    // model: '/models/crafting_table.glb',
+    // model: 'models/crafting_table.glb',
   },
-  portal:         { faces: { all: 'portal' }, transparent: true, opacity: 0.85, emissive: 1, animated: true, solid: false, thin: true },
+  void_frame:       { faces: { all: 'void_frame' } },
 };

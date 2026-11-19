@@ -1,74 +1,64 @@
 // ============================================================
-//  world.js — процедурная генерация вертикального разреза мира.
-//  Координаты: x — вправо, y — вверх, z — от зрителя вглубь (z ≤ 1).
-//  1 юнит = 1 блок. Чистые данные, без Three.js.
+//  world.js — procedural layout of the Void: floating islands.
+//  Axes: x → right, y → up, z → towards the viewer. 1 unit = 1 block.
+//  Pure data (sparse voxel map), no Three.js here.
 // ============================================================
 import { BLOCKS } from './blocks.js';
 
-export const BOUNDS = { xMin: -38, xMax: 38, yMin: -92, yMax: 26, zMin: -3, zMax: 1 };
-
-// Высота камеры (центр кадра) для каждого уровня-секции страницы.
+// Camera height (centre of the frame) for every page section.
 export const LEVELS = {
-  surface: 8,
-  stack: -15,
-  projects: -45,
-  contacts: -77,
+  home: 0,
+  stack: -26,
+  projects: -52,
+  path: -78,
+  about: -104,
+  portal: -133,
+  contacts: -154,
 };
 
-// Ключевые точки сцены (используются для света и частиц).
-export const LAB = { x0: -24, x1: 24, y0: -54, y1: -36 };
-export const PORTAL = { x0: 7, x1: 12, y0: -85, y1: -78, z: -1 };
+// Where the 3D gateway stands (scene.js builds it from these numbers).
+export const PORTAL = { x: 13, y: -139, z: 0 };
+// Where the avatar stands.
+export const AVATAR = { x: 11, y: -5.5, z: 0.5 };
+
+// Floating tech shards: one per hotbar item (ids match data.js → stack).
+export const SHARDS = [
+  { id: 'unity',   x: 6,  y: 4 },
+  { id: 'node',    x: 13, y: -19 },
+  { id: 'python',  x: 6,  y: -35 },
+  { id: 'go',      x: 17, y: -59 },
+  { id: 'docker',  x: 11, y: -97 },
+  { id: 'sqlite',  x: 13, y: -109 },
+  { id: 'blender', x: 5,  y: -123 },
+];
 
 export const TYPE_NAMES = ['air', ...Object.keys(BLOCKS)];
-const ID = Object.fromEntries(TYPE_NAMES.map((n, i) => [n, i]));
 
-const NX = BOUNDS.xMax - BOUNDS.xMin + 1;
-const NY = BOUNDS.yMax - BOUNDS.yMin + 1;
-const NZ = BOUNDS.zMax - BOUNDS.zMin + 1;
-
-// --- шум ------------------------------------------------------
-function hash3(x, y, z, seed = 1337) {
+// --- noise --------------------------------------------------------
+export function hash3(x, y, z, seed = 1337) {
   let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 1274126177) ^ Math.imul(seed, 2246822519);
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   h ^= h >>> 16;
   return (h >>> 0) / 4294967296;
 }
-const smooth = (t) => t * t * (3 - 2 * t);
-const lerp = (a, b, t) => a + (b - a) * t;
-function noise2(x, y, seed) {
-  const xi = Math.floor(x), yi = Math.floor(y);
-  const tx = smooth(x - xi), ty = smooth(y - yi);
-  const a = hash3(xi, yi, 0, seed), b = hash3(xi + 1, yi, 0, seed);
-  const c = hash3(xi, yi + 1, 0, seed), d = hash3(xi + 1, yi + 1, 0, seed);
-  return lerp(lerp(a, b, tx), lerp(c, d, tx), ty);
-}
-function fbm(x, y, seed) {
-  return noise2(x, y, seed) * 0.6 + noise2(x * 2.1, y * 2.1, seed + 7) * 0.3 + noise2(x * 4.3, y * 4.3, seed + 13) * 0.1;
-}
 
-// --- мир ------------------------------------------------------
+const key = (x, y, z) => `${x},${y},${z}`;
+
+// --- sparse voxel world ---------------------------------------------
 export class World {
-  constructor() {
-    this.grid = new Uint8Array(NX * NY * NZ);
-    this.generate();
-  }
+  constructor() { this.map = new Map(); }
 
-  idx(x, y, z) { return ((y - BOUNDS.yMin) * NZ + (z - BOUNDS.zMin)) * NX + (x - BOUNDS.xMin); }
-  inBounds(x, y, z) {
-    return x >= BOUNDS.xMin && x <= BOUNDS.xMax && y >= BOUNDS.yMin && y <= BOUNDS.yMax && z >= BOUNDS.zMin && z <= BOUNDS.zMax;
+  get(x, y, z) { return this.map.get(key(x, y, z)) || null; }
+  nameAt(x, y, z) { return this.get(x, y, z); }
+  set(x, y, z, name) {
+    if (name) this.map.set(key(x, y, z), name);
+    else this.map.delete(key(x, y, z));
   }
-  get(x, y, z) { return this.inBounds(x, y, z) ? this.grid[this.idx(x, y, z)] : -1; }
-  set(x, y, z, name) { if (this.inBounds(x, y, z)) this.grid[this.idx(x, y, z)] = name ? ID[name] : 0; }
-  nameAt(x, y, z) { const t = this.get(x, y, z); return t > 0 ? TYPE_NAMES[t] : null; }
+  setIfEmpty(x, y, z, name) { if (!this.get(x, y, z)) this.set(x, y, z, name); }
 
-  /** Скрывает ли клетка соседей (для отсечения невидимых блоков). */
   isOpaque(x, y, z) {
-    if (x < BOUNDS.xMin || x > BOUNDS.xMax) return true;   // за краями кадра
-    if (z < BOUNDS.zMin || y < BOUNDS.yMin) return true;   // задняя стенка и дно
-    if (z > BOUNDS.zMax || y > BOUNDS.yMax) return false;  // перед зрителем / небо
-    const t = this.grid[this.idx(x, y, z)];
-    if (!t) return false;
-    return BLOCKS[TYPE_NAMES[t]].solid !== false;
+    const n = this.get(x, y, z);
+    return !!n && BLOCKS[n].solid !== false;
   }
 
   isVisible(x, y, z) {
@@ -77,169 +67,144 @@ export class World {
            !this.isOpaque(x, y, z + 1) || !this.isOpaque(x, y, z - 1);
   }
 
-  /** Обход всех непустых блоков: cb(name, x, y, z). */
+  /** cb(name, x, y, z) for every block. */
   forEach(cb) {
-    for (let y = BOUNDS.yMin; y <= BOUNDS.yMax; y++)
-      for (let z = BOUNDS.zMin; z <= BOUNDS.zMax; z++)
-        for (let x = BOUNDS.xMin; x <= BOUNDS.xMax; x++) {
-          const t = this.grid[this.idx(x, y, z)];
-          if (t) cb(TYPE_NAMES[t], x, y, z);
+    for (const [k, name] of this.map) {
+      const [x, y, z] = k.split(',').map(Number);
+      cb(name, x, y, z);
+    }
+  }
+
+  get size() { return this.map.size; }
+
+  // ---------- builders ----------------------------------------------
+  /**
+   * Floating island: flat-ish top at `top`, an upside-down dome below.
+   * rx — half width, rz — half depth (towards camera), depth — max thickness.
+   */
+  island(cx, top, rx, depth, { rz = Math.min(3, Math.ceil(rx / 2)), seed = 1, block = 'end_stone', crust = null } = {}) {
+    for (let x = cx - rx; x <= cx + rx; x++) {
+      const tx = (x - cx) / (rx + 0.5);
+      const ex = 1 - tx * tx;
+      for (let z = -rz; z <= rz; z++) {
+        const tz = z / (rz + 0.6);
+        const e = ex * (1 - tz * tz);
+        if (e <= 0.05 && hash3(x, 0, z, seed) < 0.6) continue;
+        const thick = Math.max(1, Math.round(depth * Math.pow(Math.max(e, 0), 0.8) + (hash3(x, 1, z, seed) - 0.5) * 2.2));
+        const bump = hash3(x, 2, z, seed) < 0.12 && e > 0.4 ? 1 : 0;
+        for (let y = top - thick + 1; y <= top + bump; y++) {
+          const deep = top - y;
+          let b = block;
+          if (crust && y >= top) b = crust;
+          if (deep > 1 && hash3(x, y, z, seed + 9) < 0.035) b = 'obsidian';
+          this.set(x, y, z, b);
         }
-  }
-
-  groundAt(x, z = 0) {
-    let g = Math.round(1.1 * Math.sin(x * 0.16) + 0.8 * Math.sin(x * 0.41 + 1.3));
-    if (x > 16) g += Math.min(5, Math.floor((x - 16) * 0.45));
-    if (x < -22) g += Math.min(4, Math.floor((-22 - x) * 0.35));
-    if (z <= -2) g += 1 + Math.floor(noise2(x * 0.2, z, 5) * 2.2); // задние ряды выше — глубина
-    return g;
-  }
-
-  generate() {
-    const { xMin, xMax, yMin, zMin, zMax } = BOUNDS;
-
-    for (let x = xMin; x <= xMax; x++) {
-      for (let z = zMin; z <= zMax; z++) {
-        const g = this.groundAt(x, z);
-        const dirtDepth = 3 + Math.floor(hash3(x, 0, z, 3) * 2);
-        for (let y = yMin; y <= g; y++) this.set(x, y, z, this.baseBlock(x, y, z, g, dirtDepth));
-      }
-    }
-
-    this.carveCaves();
-    this.buildLab();
-    this.buildNether();
-    this.addSurfaceDetails();
-  }
-
-  baseBlock(x, y, z, g, dirtDepth) {
-    const r = hash3(x, y, z, 11);
-    if (y === g) return 'grass';
-    if (y > g - dirtDepth) return r < 0.05 ? 'gravel' : 'dirt';
-
-    // Бедрок и Незер
-    if (y <= -74) {
-      const n = fbm(x * 0.25, y * 0.25, 91);
-      if (n > 0.8 && z <= -2) return 'glowstone';
-      if (n < 0.2) return 'nether_bricks';
-      return 'netherrack';
-    }
-    if (y <= -70) return (y === -70 && r < 0.5) || (y === -71 && r < 0.3) ? 'deepslate' : 'bedrock';
-    if (y <= -66) return r < 0.35 + (-66 - y) * 0.15 ? 'obsidian' : (r < 0.8 ? 'deepslate' : 'crying_obsidian');
-
-    // Глубинный сланец (пещеры)
-    const deep = y < -34 || (y < -30 && r < (-30 - y) / 4);
-    const vein = fbm(x * 0.35, y * 0.35 + z * 3.1, 23);
-    if (deep) {
-      if (vein > 0.78) return 'redstone_ore';
-      if (vein < 0.14) return 'diamond_ore';
-      return 'deepslate';
-    }
-    // Каменный слой с рудами (секция «Стек»)
-    if (vein > 0.74) return 'coal_ore';
-    if (vein < 0.17) return y > -12 ? 'coal_ore' : 'iron_ore';
-    if (r < 0.012 && y < -14) return 'gold_ore';
-    if (r > 0.993 && y < -18) return 'emerald_ore';
-    if (r > 0.96) return 'cobble';
-    return 'stone';
-  }
-
-  carveCaves() {
-    const { xMin, xMax } = BOUNDS;
-    for (let x = xMin; x <= xMax; x++) {
-      for (let y = -66; y <= -8; y++) {
-        const n = fbm(x * 0.09, y * 0.13, 42);
-        const depthBias = y < -28 ? 0 : 0.08; // в верхних слоях пещер меньше
-        const t = 0.6 + depthBias;
-        if (n > t) this.set(x, y, 1, null), this.set(x, y, 0, null);
-        if (n > t + 0.05) this.set(x, y, -1, null);
-        if (n > t + 0.1) this.set(x, y, -2, null);
-        // мелкие выемки на фасаде и выступающие камни — объём при параллаксе
-        const r = hash3(x, y, 9, 77);
-        if (n <= t) {
-          if (r < 0.03) { this.set(x, y, 1, null); this.set(x, y, 0, null); } // выемка
-          else if (r < 0.94) this.set(x, y, 1, null);                          // иначе — выступ
-        }
-        // лавовые озёра на дне пещер
-        if (y <= -60 && n > t) {
-          for (const z of [1, 0, -1, -2]) if (this.get(x, y, z) === 0 && y <= -62) this.set(x, y, z, 'lava');
+        // hanging amethyst under the thickest part
+        if (e > 0.75 && hash3(x, 3, z, seed) < 0.07) {
+          this.set(x, top - thick, z, 'amethyst');
+          if (hash3(x, 4, z, seed) < 0.5) this.set(x, top - thick - 1, z, 'amethyst');
         }
       }
     }
-    // выступы на верхних слоях (z = 1) тоже прореживаем
-    for (let x = xMin; x <= xMax; x++)
-      for (let y = -7; y <= 0; y++) if (y < this.groundAt(x, 1) - 3 && hash3(x, y, 5, 8) < 0.9) this.set(x, y, 1, null);
   }
 
-  buildLab() {
-    const { x0, x1, y0, y1 } = LAB;
-    for (let x = x0; x <= x1; x++) {
-      for (let y = y0; y <= y1; y++) {
-        // неровные края комнаты
-        const edge = Math.min(x - x0, x1 - x, y - y0, y1 - y);
-        if (edge < 2 && hash3(x, y, 1, 5) < 0.45) continue;
-        for (const z of [1, 0, -1, -2]) this.set(x, y, z, null);
-        // задняя стена: схема из редстоуна и ламп
-        const bx = x - x0, by = y - y0;
-        let wall = 'deepslate';
-        if (by === 1) wall = 'redstone_block';
-        else if ((bx % 6 === 3) && by > 1 && by < 13) wall = by % 4 === 2 ? 'redstone_lamp' : 'redstone_block';
-        else if (by === 13 && bx > 2 && bx < x1 - x0 - 2) wall = 'redstone_block';
-        else if (hash3(x, y, 3, 2) < 0.06) wall = 'redstone_ore';
-        this.set(x, y, -3, wall);
+  chorus(x, y, z, h = 4, seed = 3) {
+    let cx = x, cz = z;
+    for (let i = 0; i < h; i++) {
+      this.setIfEmpty(cx, y + i, cz, 'chorus');
+      if (i > 0 && hash3(cx, y + i, cz, seed) < 0.35) {
+        const dx = hash3(i, seed, 1) < 0.5 ? -1 : 1;
+        this.setIfEmpty(cx + dx, y + i, cz, 'chorus');
+        this.setIfEmpty(cx + dx, y + i + 1, cz, 'chorus_flower');
       }
     }
-    // пол и потолок
-    for (let x = x0; x <= x1; x++) {
-      for (const z of [1, 0, -1, -2]) this.set(x, y0, z, hash3(x, z, 0, 4) < 0.3 ? 'cobble' : 'deepslate');
-      if (x % 8 === 0) for (const z of [0, -1, -2]) this.set(x, y1, z, 'glowstone');
-    }
-    // верстаки и колонны
-    for (const cx of [x0 + 4, x1 - 4]) {
-      this.set(cx, y0 + 1, -1, 'crafting_table');
-      this.set(cx + (cx < 0 ? 1 : -1), y0 + 1, -2, 'planks');
-    }
-    for (const cx of [x0 + 9, x1 - 9]) for (let y = y0 + 1; y < y1; y++) this.set(cx, y, -2, y % 3 === 0 ? 'redstone_lamp' : 'cobble');
+    this.setIfEmpty(cx, y + h, cz, 'chorus_flower');
   }
 
-  buildNether() {
-    // пещера Незера
-    for (let x = BOUNDS.xMin; x <= BOUNDS.xMax; x++) {
-      const top = -73 - Math.floor(fbm(x * 0.15, 1, 61) * 3);
-      const floor = -86 + Math.floor(fbm(x * 0.2, 2, 62) * 2);
-      for (let y = floor; y <= top; y++) for (const z of [1, 0, -1, -2]) this.set(x, y, z, null);
-      // лава на полу по краям
-      if (Math.abs(x) > 26) for (const z of [1, 0, -1]) this.set(x, floor, z, 'lava');
-    }
-    // портал
-    const { x0, x1, y0, y1, z } = PORTAL;
-    for (let x = x0; x <= x1; x++)
-      for (let y = y0; y <= y1; y++) {
-        const frame = x === x0 || x === x1 || y === y0 || y === y1;
-        this.set(x, y, z, frame ? 'obsidian' : 'portal');
-      }
-    for (let x = x0 - 1; x <= x1 + 1; x++) for (const zz of [1, 0, -1, -2]) this.set(x, y0 - 1, zz, 'netherrack');
+  pillar(x, y, z, h, block = 'obsidian') {
+    for (let i = 0; i < h; i++) for (let dx = 0; dx < 2; dx++) this.set(x + dx, y + i, z, block);
+    this.set(x, y + h, z, 'end_rod');
+  }
+}
+
+// --- main world --------------------------------------------------
+export function buildMainWorld() {
+  const w = new World();
+
+  // HOME — the avatar's island
+  w.island(14, -6, 10, 7, { rz: 3, seed: 11 });
+  w.chorus(20, -5, -1, 5, 4);
+  w.chorus(7, -5, -2, 3, 5);
+  w.set(17, -5, 1, 'end_rod');
+  w.island(3, 8, 2, 2, { rz: 1, seed: 12 });
+  w.island(-24, 9, 4, 3, { rz: 2, seed: 13 });
+
+  // STACK — pillar island
+  w.island(15, -32, 7, 6, { rz: 3, seed: 21 });
+  w.pillar(17, -31, -1, 5);
+  w.chorus(11, -31, 0, 3, 7);
+  w.island(25, -21, 3, 2, { rz: 1, seed: 22 });
+  w.island(-25, -30, 3, 3, { rz: 2, seed: 23 });
+
+  // PROJECTS — workshop island under the crafting GUI
+  w.island(0, -64, 18, 6, { rz: 3, seed: 31, crust: 'end_stone_bricks' });
+  w.set(-2, -63, 0, 'crafting_table');
+  w.set(-1, -63, -1, 'planks');
+  w.set(2, -63, -1, 'bookshelf');
+  w.chorus(-12, -63, -1, 4, 8);
+  w.chorus(12, -63, 1, 3, 9);
+  w.set(8, -63, 1, 'end_rod');
+  w.island(-25, -44, 3, 2, { rz: 2, seed: 32 });
+  w.island(24, -47, 3, 2, { rz: 1, seed: 33 });
+
+  // PATH — four stepping islands under the journey cards
+  [-21, -7, 7, 21].forEach((cx, i) => {
+    w.island(cx, -91 + (i % 2), 4, 4, { rz: 2, seed: 41 + i });
+    w.set(cx, -90 + (i % 2), 0, 'end_rod');
+  });
+
+  // ABOUT — library island
+  w.island(15, -114, 8, 6, { rz: 3, seed: 51, crust: 'end_stone_bricks' });
+  for (let x = 11; x <= 19; x++) {
+    if (x === 15) continue;
+    w.set(x, -113, -2, 'bookshelf');
+    if (x % 2) w.set(x, -112, -2, 'bookshelf');
+  }
+  w.chorus(20, -113, 1, 3, 12);
+  w.island(-24, -100, 3, 3, { rz: 2, seed: 52 });
+
+  // PORTAL — the gateway platform (the arch itself is built in scene.js)
+  w.island(PORTAL.x, -140, 10, 7, { rz: 3, seed: 61, crust: 'end_stone_bricks' });
+  for (const x of [PORTAL.x - 7, PORTAL.x + 7]) for (let y = -139; y <= -135; y++) w.set(x, y, -1, 'purpur');
+  w.set(PORTAL.x - 7, -134, -1, 'end_rod');
+  w.set(PORTAL.x + 7, -134, -1, 'end_rod');
+  w.island(-24, -126, 3, 2, { rz: 2, seed: 62 });
+
+  // CONTACTS — the last rock
+  w.island(16, -160, 6, 5, { rz: 2, seed: 71 });
+  w.chorus(14, -159, 0, 4, 13);
+  w.chorus(19, -159, -1, 2, 14);
+
+  // scattered islets for rhythm
+  for (let i = 0; i < 14; i++) {
+    const y = 14 - i * 13 - Math.floor(hash3(i, 7, 7) * 6);
+    const x = (i % 2 ? 1 : -1) * (26 + Math.floor(hash3(i, 8, 8) * 6));
+    w.island(x, y, 1 + Math.floor(hash3(i, 9, 9) * 2), 2, { rz: 1, seed: 90 + i });
   }
 
-  addSurfaceDetails() {
-    const tree = (tx, tz, h) => {
-      const g = this.groundAt(tx, tz);
-      for (let y = g + 1; y <= g + h; y++) this.set(tx, y, tz, 'log');
-      const top = g + h;
-      for (let dy = -2; dy <= 1; dy++)
-        for (let dx = -2; dx <= 2; dx++)
-          for (let dz = -2; dz <= 2; dz++) {
-            const rad = dy >= 0 ? 1 : 2;
-            if (Math.abs(dx) > rad || Math.abs(dz) > rad) continue;
-            if (Math.abs(dx) === 2 && Math.abs(dz) === 2 && hash3(dx, dy, dz, tx) < 0.6) continue;
-            const x = tx + dx, y = top + dy, zz = tz + dz;
-            if (zz > BOUNDS.zMax || zz < BOUNDS.zMin) continue;
-            if (this.get(x, y, zz) === 0) this.set(x, y, zz, 'leaves');
-          }
-      this.set(tx, top + 1, tz, 'leaves');
-    };
-    tree(13, -1, 5);
-    tree(-27, -2, 4);
-    tree(30, -2, 4);
+  return w;
+}
+
+// --- far background layer (rendered darker, scrolls slower) -------
+export function buildFarWorld() {
+  const w = new World();
+  for (let i = 0; i < 22; i++) {
+    // keep the far layer at the edges so it never sits behind the text column
+    const x = (i % 2 ? 1 : -1) * Math.round(20 + hash3(i, 1, 1, 5) * 26);
+    const y = Math.round(18 - i * 4.4 - hash3(i, 2, 2, 5) * 4); // far layer scrolls at half speed
+    const rx = 1 + Math.floor(hash3(i, 3, 3, 5) * 3);
+    w.island(x, y, rx, 2 + Math.floor(rx * 0.7), { rz: 1, seed: 200 + i });
+    if (hash3(i, 4, 4, 5) < 0.4) w.pillar(x, y + 1, 0, 3 + Math.floor(hash3(i, 5, 5, 5) * 5));
   }
+  return w;
 }

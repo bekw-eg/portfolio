@@ -1,7 +1,7 @@
 // ============================================================
-//  main.js — точка входа: связывает скролл, UI, звук и 3D-сцену.
-//  Three.js подгружается динамически только когда 3D включено,
-//  поэтому на мобильных качается лёгкий 2D-интерфейс.
+//  main.js — entry point: wires scroll, UI, sound and the 3D scene.
+//  Three.js is imported lazily only when 3D is on, so phones get
+//  the lightweight 2D layer without downloading it.
 // ============================================================
 import './style.css';
 import { initUI } from './ui.js';
@@ -25,60 +25,54 @@ function webglAvailable() {
 }
 const can3D = () => desktopQuery.matches && webglAvailable();
 
-// Текстуры блоков как CSS-переменные — для 2D-фона на мобильных и рамок GUI.
-for (const name of ['grass_side', 'dirt', 'stone', 'deepslate', 'obsidian', 'bedrock', 'netherrack', 'planks', 'redstone_ore', 'coal_ore', 'iron_ore']) {
-  document.documentElement.style.setProperty(`--tex-${name.replace('_', '-')}`, `url(${blockDataURL(name)})`);
+// Block textures as CSS variables (2D fallback + UI details).
+for (const name of ['end_stone', 'end_stone_bricks', 'obsidian', 'purpur']) {
+  document.documentElement.style.setProperty(`--tex-${name.replaceAll('_', '-')}`, `url(${blockDataURL(name)})`);
 }
 
-// ---------- скролл → высота камеры (кусочно-линейно по якорям секций) ----
+// ---------- scroll → camera height (piecewise-linear between sections) ----
 let anchors = [];
 function computeAnchors() {
   anchors = sections.map((s) => ({
     scroll: Math.max(0, s.offsetTop + s.offsetHeight / 2 - window.innerHeight / 2),
     y: LEVELS[s.dataset.level],
-    id: s.id,
   }));
   anchors[0].scroll = 0;
   const max = document.documentElement.scrollHeight - window.innerHeight;
   anchors[anchors.length - 1].scroll = Math.min(anchors[anchors.length - 1].scroll, max);
 }
-
 function worldYForScroll(sy) {
-  if (!anchors.length) computeAnchors(); // скролл мог прийти раньше первого пересчёта
+  if (!anchors.length) computeAnchors();
   if (sy <= anchors[0].scroll) return anchors[0].y;
   for (let i = 1; i < anchors.length; i++) {
     const a = anchors[i - 1], b = anchors[i];
-    if (sy <= b.scroll) {
-      const t = (sy - a.scroll) / Math.max(1, b.scroll - a.scroll);
-      return a.y + (b.y - a.y) * t;
-    }
+    if (sy <= b.scroll) return a.y + (b.y - a.y) * ((sy - a.scroll) / Math.max(1, b.scroll - a.scroll));
   }
   return anchors[anchors.length - 1].y;
 }
-
 function currentSection(sy) {
   const mid = sy + window.innerHeight * 0.5;
   let id = sections[0].id;
   for (const s of sections) if (s.offsetTop <= mid) id = s.id;
   return id;
 }
-
 function onScroll() {
   const sy = window.scrollY;
-  const y = worldYForScroll(sy);
-  const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-  scene?.setTargetY(y);
-  ui.updateHud({ y, progress: Math.min(1, sy / max), section: currentSection(sy) });
+  scene?.setTargetY(worldYForScroll(sy));
+  ui.updateHud({ section: currentSection(sy) });
 }
 
-// ---------- 3D-сцена или 2D-фолбэк ----------------------------------------------------
+// ---------- 3D scene or 2D fallback ----------------------------------------
 async function ensureScene() {
   if (scene) return scene;
   sceneLoading ||= import('./scene.js').then(({ createScene }) => {
     scene = createScene(canvas, {
       reducedMotion: reducedMotion.matches,
       onBreak: (name) => { sound.breakBlock(name); ui.onBlockBreak(name); },
+      onShard: (id, pos) => ui.collect(id, pos),
+      onAvatar: () => ui.onAvatar(),
     });
+    ui.bindScene(scene);
     if (import.meta.env.DEV) window.__scene = scene;
     return scene;
   });
@@ -95,7 +89,7 @@ async function applyView() {
       s.start();
       document.body.classList.add('is-3d');
     } catch (err) {
-      console.error('[3D] не удалось запустить сцену, переключаюсь на 2D', err);
+      console.error('[3D] scene failed, falling back to 2D', err);
       document.body.classList.add('no3d');
     }
   } else {
@@ -107,8 +101,6 @@ async function applyView() {
 }
 
 const ui = initUI();
-// старый сохранённый «режим для HR» больше не используется
-try { localStorage.removeItem('mc-portfolio:mode'); } catch { /* ignore */ }
 
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', () => { computeAnchors(); onScroll(); });
@@ -118,7 +110,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) scene.stop(); else scene.start();
 });
 
-// плавная навигация по якорям
+// smooth anchor navigation
 document.addEventListener('click', (e) => {
   const a = e.target.closest('a[href^="#"]');
   if (!a) return;
@@ -129,5 +121,4 @@ document.addEventListener('click', (e) => {
 });
 
 applyView();
-// шрифты меняют высоты секций — пересчитаем якоря
 document.fonts?.ready.then(() => { computeAnchors(); onScroll(); });
