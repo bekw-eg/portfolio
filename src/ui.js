@@ -1,6 +1,6 @@
 // ============================================================
 //  ui.js — HTML-слой поверх сцены: секции, хотбар, тултипы,
-//  верстак, достижения, контакты, чат и режим для HR.
+//  верстак, достижения, контакты и чат.
 // ============================================================
 import { profile, contacts, stack, extraItems, projects, advancements, chatCommands } from './data.js';
 import { iconDataURL } from './textures.js';
@@ -11,7 +11,6 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const icon = (name, cls = 'px-icon', alt = '') => `<img class="${cls}" src="${iconDataURL(name)}" alt="${esc(alt)}" width="32" height="32" draggable="false">`;
 
 const RARITY_COLOR = { common: '#ffffff', uncommon: '#ffff55', rare: '#55ffff', epic: '#ff55ff' };
-const MODE_KEY = 'mc-portfolio:mode';
 
 /** Описание предмета по id (для тултипов в верстаке). */
 function itemInfo(id) {
@@ -31,9 +30,8 @@ export function downloadCV() {
 }
 
 // ============================================================
-export function initUI({ onModeChange } = {}) {
+export function initUI() {
   const tooltip = $('#tooltip');
-  let mode = 'creative';
 
   // ---------- рендер секций ---------------------------------
   $('#surface').innerHTML = `
@@ -43,8 +41,8 @@ export function initUI({ onModeChange } = {}) {
       <p class="hero__role">${esc(profile.role)} <span class="splash" aria-hidden="true">Теперь в 2.5D!</span></p>
       <p class="hero__tagline">${esc(profile.tagline)}</p>
       <div class="hero__actions">
-        <button class="mc-btn mc-btn--hr" data-action="hr">${icon('book', 'px-icon px-icon--sm')}Режим для HR</button>
-        <a class="mc-btn" href="#projects" data-action="nav">Смотреть проекты</a>
+        <a class="mc-btn mc-btn--primary" href="#projects" data-action="nav">Смотреть проекты</a>
+        <a class="mc-btn" href="#contacts" data-action="nav">${icon('telegram', 'px-icon px-icon--sm')}Контакты</a>
         <button class="mc-btn" data-action="cv">${icon('cv', 'px-icon px-icon--sm')}Резюме PDF</button>
       </div>
       <p class="hero__hint"><kbd>Скролл</kbd> — копать вглубь · <kbd>/</kbd> — чат · <kbd>1–7</kbd> — хотбар · клик по блоку — сломать</p>
@@ -228,7 +226,7 @@ export function initUI({ onModeChange } = {}) {
       </header>
       <p class="craft__summary">${esc(p.summary)}</p>
       <ul class="craft__features">${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
-      <div class="craft__links">${link(p.links.code, 'Код', 'gitlab')}${link(p.links.demo, 'Демо', 'compass')}</div>`;
+      <div class="craft__links">${link(p.links.code, 'Код', 'github')}${link(p.links.demo, 'Демо', 'compass')}</div>`;
     card.classList.remove('is-in'); void card.offsetWidth; card.classList.add('is-in');
   }
 
@@ -288,9 +286,7 @@ export function initUI({ onModeChange } = {}) {
     const el = e.target.closest('[data-action], [data-sound]');
     if (!el) return;
     const action = el.dataset.action;
-    if (action === 'hr') { e.preventDefault(); setMode('simple'); }
-    else if (action === 'creative') { e.preventDefault(); setMode('creative'); }
-    else if (action === 'cv') { e.preventDefault(); sound.click(); downloadCV(); chatMessage(`Скачивание: ${profile.cvFileName}`, 'system'); }
+    if (action === 'cv') { e.preventDefault(); sound.click(); downloadCV(); chatMessage(`Скачивание: ${profile.cvFileName}`, 'system'); }
     else if (action === 'chat') { e.preventDefault(); openChat(); }
     else if (action === 'mute') { e.preventDefault(); sound.toggle(); }
     else sound.click();
@@ -373,8 +369,6 @@ export function initUI({ onModeChange } = {}) {
       chatMessage('[Контакты]', 'system');
       contacts.forEach((c) => chatMessage(`${esc(c.label)}: <a href="${esc(c.href)}" ${c.href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}>${esc(c.value)}</a>`, 'info', true));
     },
-    '/gamemode simple': () => { setMode('simple'); },
-    '/gamemode creative': () => { setMode('creative'); chatMessage('Режим игры изменён на «Творческий» (2.5D)', 'system'); },
     '/mute': () => { const m = sound.toggle(); chatMessage(m ? 'Звук выключен' : 'Звук включён', 'system'); },
     '/help': () => { chatCommands.forEach((c) => chatMessage(`<b>${esc(c.cmd)}</b> — ${esc(c.desc)}`, 'info', true)); },
   };
@@ -429,7 +423,6 @@ export function initUI({ onModeChange } = {}) {
   document.addEventListener('keydown', (e) => {
     const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
     if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (mode !== 'creative') return;
     if (e.key === '/') { e.preventDefault(); openChat('/'); }
     else if (e.key === 't' || e.key === 'T' || e.key === 'е' || e.key === 'Е') { e.preventDefault(); openChat(''); }
     else if (/^[1-7]$/.test(e.key)) {
@@ -440,68 +433,6 @@ export function initUI({ onModeChange } = {}) {
       selectSlot._t = setTimeout(hideTooltip, 2200);
     }
   });
-
-  // ---------- режим для HR ----------------------------------------
-  const hr = $('#hr');
-  hr.innerHTML = `
-    <div class="hr">
-      <header class="hr__head">
-        <div>
-          <h1>${esc(profile.name)}</h1>
-          <p class="hr__role">${esc(profile.role)} · ${esc(profile.location)}</p>
-          <p class="hr__tagline">${esc(profile.tagline)}</p>
-        </div>
-        <div class="hr__actions">
-          <a class="hr-btn hr-btn--primary" href="${esc(profile.cvUrl)}" download="${esc(profile.cvFileName)}">Скачать резюме (PDF)</a>
-          <button class="hr-btn" data-action="creative">Вернуться в 2.5D-версию</button>
-        </div>
-      </header>
-      <section class="hr__section">
-        <h2>Контакты</h2>
-        <ul class="hr__contacts">
-          ${contacts.map((c) => `<li><span>${esc(c.label)}</span><a href="${esc(c.href)}" ${c.href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}>${esc(c.value)}</a></li>`).join('')}
-        </ul>
-      </section>
-      <section class="hr__section">
-        <h2>Стек</h2>
-        <ul class="hr__stack">
-          ${stack.map((t) => `<li><strong>${esc(t.name)}</strong><span>${esc(t.lines.join('; '))}</span></li>`).join('')}
-        </ul>
-      </section>
-      <section class="hr__section">
-        <h2>Проекты</h2>
-        ${projects.map((p) => `
-          <article class="hr__project">
-            <header><h3>${esc(p.title)}</h3><span>${esc(p.stack.join(' · '))}</span></header>
-            <p>${esc(p.summary)}</p>
-            <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
-            ${p.links.code || p.links.demo ? `<p class="hr__links">${p.links.code ? `<a href="${esc(p.links.code)}" target="_blank" rel="noopener">Код</a>` : ''}${p.links.demo ? ` · <a href="${esc(p.links.demo)}" target="_blank" rel="noopener">Демо</a>` : ''}</p>` : ''}
-          </article>`).join('')}
-      </section>
-      <section class="hr__section">
-        <h2>Образование и опыт</h2>
-        <ul class="hr__timeline">
-          ${advancements.map((a) => `<li><strong>${esc(a.title)}</strong><span>${esc(a.desc)}</span></li>`).join('')}
-        </ul>
-      </section>
-      <footer class="hr__foot">Простой режим · <button class="hr-link" data-action="creative">/gamemode creative</button></footer>
-    </div>`;
-
-  function setMode(next, { silent = false } = {}) {
-    if (next === mode) return;
-    mode = next;
-    try { localStorage.setItem(MODE_KEY, mode); } catch { /* ignore */ }
-    const simple = mode === 'simple';
-    document.body.classList.toggle('hr-mode', simple);
-    $('#game').hidden = simple;
-    hr.hidden = !simple;
-    hideTooltip();
-    closeChat();
-    if (!silent) sound.click();
-    if (simple) window.scrollTo(0, 0);
-    onModeChange?.(mode);
-    if (!simple && !silent) chatMessage('Режим игры изменён на «Творческий»', 'system');
-  }
 
   // ---------- HUD: координаты, опыт, первые визиты -------------
   const coords = $('#coords');
@@ -536,17 +467,11 @@ export function initUI({ onModeChange } = {}) {
     if (name === 'diamond_ore') toast('Алмазы!', 'Ты нашёл алмазную руду', 'diamond', true);
   }
 
-  // начальный режим: ?hr=1 или сохранённый выбор
-  const params = new URLSearchParams(location.search);
-  let initial = 'creative';
-  try { initial = localStorage.getItem(MODE_KEY) || 'creative'; } catch { /* ignore */ }
-  if (params.has('hr')) initial = 'simple';
-  if (initial === 'simple') setMode('simple', { silent: true });
   selectSlot(0, { silent: true });
   heldName.classList.remove('is-visible');
   if (window.matchMedia('(hover: hover)').matches) {
     setTimeout(() => chatMessage('Добро пожаловать! Нажми / чтобы открыть чат, /help — список команд.', 'system'), 1200);
   }
 
-  return { setMode, get mode() { return mode; }, updateHud, onBlockBreak, toast, chatMessage };
+  return { updateHud, onBlockBreak, toast, chatMessage };
 }

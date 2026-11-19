@@ -14,11 +14,10 @@ export const profile = {
   cvFileName: 'Berdibek_Egeubay_CV.pdf',
 };
 
-// TODO: подставь реальные ссылки.
 export const contacts = [
-  { id: 'gitlab',   label: 'GitLab',   value: 'gitlab.com/your-username', href: 'https://gitlab.com/your-username', icon: 'gitlab' },
-  { id: 'telegram', label: 'Telegram', value: '@your_username',           href: 'https://t.me/your_username',       icon: 'telegram' },
-  { id: 'email',    label: 'Email',    value: 'you@example.com',          href: 'mailto:you@example.com',           icon: 'email' },
+  { id: 'github',   label: 'GitHub',   value: '@bekw-eg',                  href: 'https://github.com/bekw-eg',          icon: 'github' },
+  { id: 'telegram', label: 'Telegram', value: '@zdeathbecaq',              href: 'https://t.me/zdeathbecaq',            icon: 'telegram' },
+  { id: 'email',    label: 'Email',    value: 'berdibekegeubai@gmail.com', href: 'mailto:berdibekegeubai@gmail.com',    icon: 'email' },
 ];
 
 // Хотбар: id → иконка из textures.js (drawItemIcon).
@@ -110,7 +109,7 @@ export const projects = [
       'Роадмап задач с прогрессом',
       'Мини-игра Tower Defense на время перерыва',
     ],
-    links: { code: 'https://gitlab.com/your-username/antistall', demo: '' },
+    links: { code: '', demo: '' },
   },
   {
     id: 'trapple',
@@ -129,7 +128,7 @@ export const projects = [
       'Гардероб скинов',
       'Механика бросков',
     ],
-    links: { code: 'https://gitlab.com/your-username/trapple', demo: '' },
+    links: { code: 'https://github.com/bekw-eg/Trapple', demo: '' },
   },
   {
     id: 'aicity',
@@ -147,7 +146,7 @@ export const projects = [
       'RAG поверх базы мест и отзывов',
       'Разработан за время хакатона командой',
     ],
-    links: { code: 'https://gitlab.com/your-username/ai-city-advisor', demo: '' },
+    links: { code: '', demo: '' },
   },
 ];
 
@@ -177,8 +176,6 @@ export const advancements = [
 export const chatCommands = [
   { cmd: '/cv',                desc: 'скачать резюме' },
   { cmd: '/contacts',          desc: 'показать контакты' },
-  { cmd: '/gamemode simple',   desc: 'режим для HR' },
-  { cmd: '/gamemode creative', desc: 'вернуть 2.5D-сцену' },
   { cmd: '/mute',              desc: 'вкл/выкл звук' },
   { cmd: '/help',              desc: 'список команд' },
 ];

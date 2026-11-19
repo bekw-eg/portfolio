@@ -44,6 +44,7 @@ function computeAnchors() {
 }
 
 function worldYForScroll(sy) {
+  if (!anchors.length) computeAnchors(); // скролл мог прийти раньше первого пересчёта
   if (sy <= anchors[0].scroll) return anchors[0].y;
   for (let i = 1; i < anchors.length; i++) {
     const a = anchors[i - 1], b = anchors[i];
@@ -70,7 +71,7 @@ function onScroll() {
   ui.updateHud({ y, progress: Math.min(1, sy / max), section: currentSection(sy) });
 }
 
-// ---------- режимы ----------------------------------------------------
+// ---------- 3D-сцена или 2D-фолбэк ----------------------------------------------------
 async function ensureScene() {
   if (scene) return scene;
   sceneLoading ||= import('./scene.js').then(({ createScene }) => {
@@ -84,18 +85,12 @@ async function ensureScene() {
   return sceneLoading;
 }
 
-async function applyMode(mode) {
-  if (mode === 'simple') {
-    scene?.stop();
-    document.body.classList.remove('is-3d');
-    return;
-  }
+async function applyView() {
   computeAnchors();
   if (can3D()) {
     document.body.classList.remove('no3d');
     try {
       const s = await ensureScene();
-      if (ui.mode !== 'creative') return;
       s.setTargetY(worldYForScroll(window.scrollY), true);
       s.start();
       document.body.classList.add('is-3d');
@@ -111,13 +106,15 @@ async function applyMode(mode) {
   onScroll();
 }
 
-const ui = initUI({ onModeChange: applyMode });
+const ui = initUI();
+// старый сохранённый «режим для HR» больше не используется
+try { localStorage.removeItem('mc-portfolio:mode'); } catch { /* ignore */ }
 
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', () => { computeAnchors(); onScroll(); });
-desktopQuery.addEventListener('change', () => { if (ui.mode === 'creative') applyMode('creative'); });
+desktopQuery.addEventListener('change', applyView);
 document.addEventListener('visibilitychange', () => {
-  if (!scene || ui.mode !== 'creative' || !document.body.classList.contains('is-3d')) return;
+  if (!scene || !document.body.classList.contains('is-3d')) return;
   if (document.hidden) scene.stop(); else scene.start();
 });
 
@@ -131,6 +128,6 @@ document.addEventListener('click', (e) => {
   target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 });
 
-if (ui.mode === 'creative') applyMode('creative');
+applyView();
 // шрифты меняют высоты секций — пересчитаем якоря
 document.fonts?.ready.then(() => { computeAnchors(); onScroll(); });
